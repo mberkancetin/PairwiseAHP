@@ -1,1 +1,16 @@
+# Secrets and local configuration
 config.ts
+
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+/build
+
+# Logs
+*.log
+
+# Editor directories
+.idea
+.vscode
