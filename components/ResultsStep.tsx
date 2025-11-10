@@ -12,6 +12,9 @@ interface ResultsStepProps {
 type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 
 const isValidUrl = (urlString: string): boolean => {
+    if (!urlString || urlString.includes('PASTE_YOUR_GOOGLE_SCRIPT_URL')) {
+        return false;
+    }
     try {
         const url = new URL(urlString);
         return url.protocol === 'http:' || url.protocol === 'https:';
@@ -25,10 +28,18 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ results, username }) => {
   const [status, setStatus] = useState<SubmissionStatus>('idle');
 
   useEffect(() => {
+    // Check if the fallback URL is being used and issue a warning.
+    if (!process.env.GOOGLE_SCRIPT_URL && isValidUrl(GOOGLE_SCRIPT_URL)) {
+        console.warn(
+            "Security Warning: GOOGLE_SCRIPT_URL is being read from the config.ts file. " +
+            "For better security, please set this value as a secret/environment variable in your project settings."
+        );
+    }
+
     const submitResults = async () => {
       if (!isValidUrl(GOOGLE_SCRIPT_URL) || !username) {
         if (!isValidUrl(GOOGLE_SCRIPT_URL)) {
-            console.warn('Google Script URL is not a valid URL. Please check your config.ts file. Skipping submission.');
+            console.warn('Google Script URL is not configured or is invalid. Please set it as a secret or in the config.ts file. Skipping submission.');
         }
         setStatus('idle');
         return;
