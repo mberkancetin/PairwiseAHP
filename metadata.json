@@ -1,0 +1,5 @@
+{
+  "name": "AHP Pairwise Comparison Survey",
+  "description": "A modern web application for conducting Analytical Hierarchy Process (AHP) surveys. It allows presenting participants with an intuitive pairwise comparison interface. This tool overcomes the limitations of standard form builders by providing a custom, interactive slider for rating the relative importance of criteria.",
+  "requestFramePermissions": []
+}
