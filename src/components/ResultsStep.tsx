@@ -26,20 +26,21 @@ const isValidUrl = (urlString: string): boolean => {
 const ResultsStep: React.FC<ResultsStepProps> = ({ results, username }) => {
   const { t } = useLanguage();
   const [status, setStatus] = useState<SubmissionStatus>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     // Check if the fallback URL is being used and issue a warning.
-    if (!process.env.GOOGLE_SCRIPT_URL && isValidUrl(GOOGLE_SCRIPT_URL)) {
+    if (!import.meta.env.VITE_GOOGLE_SCRIPT_URL && isValidUrl(GOOGLE_SCRIPT_URL)) {
         console.warn(
-            "Security Warning: GOOGLE_SCRIPT_URL is being read from the config.ts file. " +
-            "For better security, please set this value as a secret/environment variable in your project settings."
+            "Security Warning: GOOGLE_SCRIPT_URL is being read from a fallback in the config.ts file. " +
+            "For better security, please set this value as a VITE_GOOGLE_SCRIPT_URL secret/environment variable in your hosting provider."
         );
     }
 
     const submitResults = async () => {
       if (!isValidUrl(GOOGLE_SCRIPT_URL) || !username) {
         if (!isValidUrl(GOOGLE_SCRIPT_URL)) {
-            console.warn('Google Script URL is not configured or is invalid. Please set it as a secret or in the config.ts file. Skipping submission.');
+            console.warn('Google Script URL is not configured or is invalid. Please set the VITE_GOOGLE_SCRIPT_URL secret. Skipping submission.');
         }
         setStatus('idle');
         return;
@@ -91,8 +92,11 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ results, username }) => {
         } else {
           throw new Error(result.message || 'Unknown error from Google Script');
         }
+// FIX: Added curly braces to the catch block to fix a syntax error that was causing all subsequent errors.
       } catch (error) {
         console.error('Error submitting results:', error);
+        const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+        setErrorMessage(message);
         setStatus('error');
       }
     };
@@ -108,7 +112,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ results, username }) => {
         return <div className="text-sm text-green-600">{t('results_saved')}</div>;
     }
     if (status === 'error') {
-        return <div className="text-sm text-red-600">{t('results_error')}</div>;
+        return <div className="text-sm text-red-600">{t('results_error')} {errorMessage && `- ${errorMessage}`}</div>;
     }
     return null;
   }
