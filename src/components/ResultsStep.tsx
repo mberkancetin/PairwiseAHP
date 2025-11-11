@@ -47,14 +47,35 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ results, username }) => {
 
       setStatus('submitting');
       
-      const flatResults = Object.entries(results).flatMap(([groupName, groupResults]) => 
-        (Array.isArray(groupResults) ? groupResults : []).map(result => ({ ...result, group: groupName }))
-      );
-      
-      const payload = {
+      const payload: { [key: string]: string | number } = {
           username,
-          results: flatResults,
+          timestamp: new Date().toISOString(),
       };
+
+      Object.values(results).forEach(groupResults => {
+        if (Array.isArray(groupResults)) {
+            groupResults.forEach(result => {
+                const { pair, winner, value } = result;
+                const columnName = `${pair.item1}/${pair.item2}`;
+
+                let formattedValue: string;
+
+                if (winner === null) {
+                    // Equal importance, AHP value is 1
+                    formattedValue = 'a1';
+                } else if (winner === pair.item1) {
+                    // Item 1 is more important
+                    const intensity = Math.round(value);
+                    formattedValue = `a${intensity}`;
+                } else { // winner === pair.item2
+                    // Item 2 is more important
+                    const intensity = Math.round(1 / value);
+                    formattedValue = `b${intensity}`;
+                }
+                payload[columnName] = formattedValue;
+            });
+        }
+      });
 
       try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
