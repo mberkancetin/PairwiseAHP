@@ -36,10 +36,10 @@ jobs:
       - name: Use public npm registry
         run: npm config set registry https://registry.npmjs.org/
 
-      - name: Retry clean install
+      - name: Install dependencies with retry
         run: |
           for i in {1..3}; do
-            npm ci && break || sleep 10
+            npm install --prefer-online && break || sleep 10
           done
 
       - name: Build
