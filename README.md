@@ -1,2 +1,2 @@
 # PairwiseAHP
-A webapp for pairwise Analytical Hierarchical Process (AHP) surveying
+A webapp for pairwise Analytical Hierarchical Process (AHP) surveying.
